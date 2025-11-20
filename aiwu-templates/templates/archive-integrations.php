@@ -88,9 +88,6 @@ $total_pages = ceil($total_found / 12);
                         </div>
                         <div class="aiwu-integration-card-content">
                             <h2 class="aiwu-integration-card-name"><?php echo esc_html($integration->name); ?></h2>
-                            <?php if (!empty($integration->description)): ?>
-                                <p class="aiwu-integration-card-desc"><?php echo esc_html($integration->description); ?></p>
-                            <?php endif; ?>
                             <?php if ($template_count > 0): ?>
                                 <div class="aiwu-integration-card-count">
                                     <?php echo $template_count; ?> template<?php echo $template_count !== 1 ? 's' : ''; ?>
