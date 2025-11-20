@@ -105,48 +105,113 @@
       <?php endif; ?>
 
       <?php
-      $file_id = get_post_meta(get_the_ID(), '_template_file_id', true);
-      if (!empty($file_id)):
-          $file_url = wp_get_attachment_url($file_id);
-          $file_path = get_attached_file($file_id);
-          if ($file_url && file_exists($file_path)):
-              $file_name = basename($file_path);
-              $file_size = size_format(filesize($file_path));
-              $file_ext = strtoupper(pathinfo($file_name, PATHINFO_EXTENSION));
+      $video_url = get_post_meta(get_the_ID(), '_template_video_url', true);
+      if (!empty($video_url)):
+          $video_id = aiwu_get_youtube_id($video_url);
+          if ($video_id):
       ?>
-        <div class="aiwu-template-download">
-          <div class="aiwu-download-card">
-            <div class="aiwu-download-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="aiwu-download-info">
-              <div class="aiwu-download-title">Template File Available</div>
-              <div class="aiwu-download-meta">
-                <span class="aiwu-download-name"><?php echo esc_html($file_name); ?></span>
-                <span class="aiwu-download-separator">•</span>
-                <span class="aiwu-download-size"><?php echo esc_html($file_size); ?></span>
-                <?php if ($file_ext): ?>
-                  <span class="aiwu-download-separator">•</span>
-                  <span class="aiwu-download-type"><?php echo esc_html($file_ext); ?></span>
-                <?php endif; ?>
-              </div>
-            </div>
-            <a href="<?php echo esc_url($file_url); ?>"
-               class="aiwu-download-button"
-               download="<?php echo esc_attr($file_name); ?>"
-               title="Download <?php echo esc_attr($file_name); ?>">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Download
-            </a>
+        <div class="aiwu-template-video">
+          <h3 class="aiwu-video-title">📺 Video Tutorial</h3>
+          <div class="aiwu-video-wrapper">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($video_id); ?>?rel=0&modestbranding=1"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy"
+              title="<?php echo esc_attr(get_the_title()); ?> tutorial video">
+            </iframe>
           </div>
         </div>
       <?php endif; endif; ?>
+
+      <?php
+      $file_id = get_post_meta(get_the_ID(), '_template_file_id', true);
+      $json_file_id = get_post_meta(get_the_ID(), '_template_json_file_id', true);
+
+      if (!empty($file_id) || !empty($json_file_id)):
+      ?>
+        <div class="aiwu-template-downloads">
+          <?php if (!empty($file_id)):
+              $file_url = wp_get_attachment_url($file_id);
+              $file_path = get_attached_file($file_id);
+              if ($file_url && file_exists($file_path)):
+                  $file_name = basename($file_path);
+                  $file_size = size_format(filesize($file_path));
+                  $file_ext = strtoupper(pathinfo($file_name, PATHINFO_EXTENSION));
+          ?>
+            <div class="aiwu-download-card">
+              <div class="aiwu-download-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="aiwu-download-info">
+                <div class="aiwu-download-title">Template File Available</div>
+                <div class="aiwu-download-meta">
+                  <span class="aiwu-download-name"><?php echo esc_html($file_name); ?></span>
+                  <span class="aiwu-download-separator">•</span>
+                  <span class="aiwu-download-size"><?php echo esc_html($file_size); ?></span>
+                  <?php if ($file_ext): ?>
+                    <span class="aiwu-download-separator">•</span>
+                    <span class="aiwu-download-type"><?php echo esc_html($file_ext); ?></span>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <a href="<?php echo esc_url($file_url); ?>"
+                 class="aiwu-download-button"
+                 download="<?php echo esc_attr($file_name); ?>"
+                 title="Download <?php echo esc_attr($file_name); ?>">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Download
+              </a>
+            </div>
+          <?php endif; endif; ?>
+
+          <?php if (!empty($json_file_id)):
+              $json_url = wp_get_attachment_url($json_file_id);
+              $json_path = get_attached_file($json_file_id);
+              if ($json_url && file_exists($json_path)):
+                  $json_name = basename($json_path);
+                  $json_size = size_format(filesize($json_path));
+          ?>
+            <div class="aiwu-download-card aiwu-download-card-json">
+              <div class="aiwu-download-icon aiwu-download-icon-json">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 14H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="aiwu-download-info">
+                <div class="aiwu-download-title">JSON Workflow Template</div>
+                <div class="aiwu-download-meta">
+                  <span class="aiwu-download-name"><?php echo esc_html($json_name); ?></span>
+                  <span class="aiwu-download-separator">•</span>
+                  <span class="aiwu-download-size"><?php echo esc_html($json_size); ?></span>
+                  <span class="aiwu-download-separator">•</span>
+                  <span class="aiwu-download-type">JSON</span>
+                </div>
+              </div>
+              <a href="<?php echo esc_url($json_url); ?>"
+                 class="aiwu-download-button aiwu-download-button-json"
+                 download="<?php echo esc_attr($json_name); ?>"
+                 title="Download JSON workflow template">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Download JSON
+              </a>
+            </div>
+          <?php endif; endif; ?>
+        </div>
+      <?php endif; ?>
     </div>
 
     <?php if (!empty($steps) && is_array($steps)): ?>

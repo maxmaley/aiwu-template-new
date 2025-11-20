@@ -146,6 +146,8 @@ class AIWU_Templates {
         $description = get_post_meta($post->ID, '_template_description', true);
         $preview_image = get_post_meta($post->ID, '_template_preview_image', true);
         $file_id = get_post_meta($post->ID, '_template_file_id', true);
+        $video_url = get_post_meta($post->ID, '_template_video_url', true);
+        $json_file_id = get_post_meta($post->ID, '_template_json_file_id', true);
         ?>
         <p>
             <label><strong>Description:</strong></label><br>
@@ -155,6 +157,11 @@ class AIWU_Templates {
             <label><strong>Preview Image URL:</strong></label><br>
             <input type="url" name="template_preview_image" value="<?php echo esc_url($preview_image); ?>" style="width:100%">
             <small>Optional: Add a preview image URL or use Featured Image</small>
+        </p>
+        <p>
+            <label><strong>YouTube Video URL:</strong></label><br>
+            <input type="url" name="template_video_url" value="<?php echo esc_url($video_url); ?>" style="width:100%" placeholder="https://www.youtube.com/watch?v=...">
+            <small>Optional: Add a YouTube tutorial video URL. If provided, it will be displayed on the template page.</small>
         </p>
         <p>
             <label><strong>Template File:</strong></label><br>
@@ -177,6 +184,28 @@ class AIWU_Templates {
                 ?>
             </div>
             <small>Optional: Upload a template file that users can download</small>
+        </p>
+        <p>
+            <label><strong>JSON Template File:</strong></label><br>
+            <input type="hidden" name="template_json_file_id" id="template-json-file-id" value="<?php echo esc_attr($json_file_id); ?>">
+            <button type="button" id="upload-json-file" class="button">
+                <?php echo !empty($json_file_id) ? 'Change JSON File' : 'Upload JSON File'; ?>
+            </button>
+            <button type="button" id="remove-json-file" class="button" style="<?php echo empty($json_file_id) ? 'display:none' : ''; ?>">Remove JSON</button>
+            <div id="json-file-info" style="margin-top:10px">
+                <?php
+                if (!empty($json_file_id)) {
+                    $json_url = wp_get_attachment_url($json_file_id);
+                    $json_name = basename(get_attached_file($json_file_id));
+                    $json_size = size_format(filesize(get_attached_file($json_file_id)));
+                    echo '<div style="padding:10px;background:#f0f0f0;border-left:3px solid #22c55e">';
+                    echo '<strong>' . esc_html($json_name) . '</strong><br>';
+                    echo '<small>Size: ' . esc_html($json_size) . '</small>';
+                    echo '</div>';
+                }
+                ?>
+            </div>
+            <small>Optional: Upload a JSON workflow template file. A download button will be displayed on the template page.</small>
         </p>
 
         <script>
@@ -219,6 +248,49 @@ class AIWU_Templates {
                     $('#template-file-id').val('');
                     $('#template-file-info').empty();
                     $('#upload-template-file').text('Upload Template File');
+                    $(this).hide();
+                }
+            });
+
+            // Upload JSON file
+            $('#upload-json-file').on('click', function(e) {
+                e.preventDefault();
+
+                const mediaUploader = wp.media({
+                    title: 'Choose JSON File',
+                    button: { text: 'Use this file' },
+                    multiple: false,
+                    library: { type: 'application/json' }
+                });
+
+                mediaUploader.on('select', function() {
+                    const attachment = mediaUploader.state().get('selection').first().toJSON();
+                    $('#template-json-file-id').val(attachment.id);
+
+                    const fileSize = attachment.filesizeHumanReadable || '';
+                    const fileName = attachment.filename || attachment.title;
+
+                    $('#json-file-info').html(
+                        '<div style="padding:10px;background:#f0f0f0;border-left:3px solid #22c55e">' +
+                        '<strong>' + fileName + '</strong><br>' +
+                        '<small>Size: ' + fileSize + '</small>' +
+                        '</div>'
+                    );
+
+                    $('#upload-json-file').text('Change JSON File');
+                    $('#remove-json-file').show();
+                });
+
+                mediaUploader.open();
+            });
+
+            // Remove JSON file
+            $('#remove-json-file').on('click', function(e) {
+                e.preventDefault();
+                if (confirm('Remove this JSON file?')) {
+                    $('#template-json-file-id').val('');
+                    $('#json-file-info').empty();
+                    $('#upload-json-file').text('Upload JSON File');
                     $(this).hide();
                 }
             });
@@ -424,6 +496,24 @@ class AIWU_Templates {
             }
         }
 
+        if (isset($_POST['template_video_url'])) {
+            $video_url = esc_url_raw($_POST['template_video_url']);
+            if (!empty($video_url)) {
+                update_post_meta($post_id, '_template_video_url', $video_url);
+            } else {
+                delete_post_meta($post_id, '_template_video_url');
+            }
+        }
+
+        if (isset($_POST['template_json_file_id'])) {
+            $json_file_id = absint($_POST['template_json_file_id']);
+            if ($json_file_id > 0) {
+                update_post_meta($post_id, '_template_json_file_id', $json_file_id);
+            } else {
+                delete_post_meta($post_id, '_template_json_file_id');
+            }
+        }
+
         if (isset($_POST['steps'])) {
             $steps = array_map(function($step) {
                 return [
@@ -470,7 +560,7 @@ class AIWU_Templates {
     
     public function enqueue_styles() {
         if (is_post_type_archive('workflow_template') || is_singular('workflow_template') || is_tax('template_integration') || get_query_var('integrations_archive')) {
-            wp_enqueue_style('aiwu-templates', plugin_dir_url(__FILE__) . 'assets/styles.css', [], '1.0.1');
+            wp_enqueue_style('aiwu-templates', plugin_dir_url(__FILE__) . 'assets/styles.css', [], '1.0.2');
         }
     }
     
@@ -914,6 +1004,20 @@ function aiwu_get_integration_initials($name) {
 
     // First two letters of single word: "Telegram" → "TE"
     return strtoupper(substr($name, 0, 2));
+}
+
+/**
+ * Extract YouTube video ID from URL
+ *
+ * @param string $url YouTube URL
+ * @return string|false Video ID or false if not found
+ */
+function aiwu_get_youtube_id($url) {
+    $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
+    if (preg_match($pattern, $url, $matches)) {
+        return $matches[1];
+    }
+    return false;
 }
 
 new AIWU_Templates();
