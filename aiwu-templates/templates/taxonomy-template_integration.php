@@ -57,9 +57,9 @@ $logic_blocks_data = !empty($logic_blocks) ? $logic_blocks : [];
         <div class="aiwu-integration-hero-text">
           <h1 class="aiwu-template-title"><?php echo esc_html($term->name); ?> Integration</h1>
           <?php if (!empty($term->description)): ?>
-            <p class="aiwu-template-description">
-              <?php echo esc_html($term->description); ?>
-            </p>
+            <div class="aiwu-template-description">
+              <?php echo wpautop(wp_kses_post($term->description)); ?>
+            </div>
           <?php endif; ?>
         </div>
 
