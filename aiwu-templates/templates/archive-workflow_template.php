@@ -135,8 +135,9 @@ $all_integrations = get_terms(['taxonomy' => 'template_integration', 'hide_empty
                                 foreach ($visible as $integration):
                                     $icon_id = get_term_meta($integration->term_id, 'icon_image_id', true);
                                     $icon_url = $icon_id ? wp_get_attachment_url($icon_id) : '';
+                                    $integration_link = get_term_link($integration);
                                 ?>
-                                    <div class="aiwu-integration-icon" title="<?php echo esc_attr($integration->name); ?>">
+                                    <a href="<?php echo esc_url($integration_link); ?>" class="aiwu-integration-icon" title="<?php echo esc_attr($integration->name); ?>" onclick="event.stopPropagation();">
                                         <?php if ($icon_url): ?>
                                             <img src="<?php echo esc_url($icon_url); ?>" alt="<?php echo esc_attr($integration->name); ?>">
                                         <?php else:
@@ -144,7 +145,7 @@ $all_integrations = get_terms(['taxonomy' => 'template_integration', 'hide_empty
                                         ?>
                                             <span class="aiwu-integration-initials"><?php echo esc_html($initials); ?></span>
                                         <?php endif; ?>
-                                    </div>
+                                    </a>
                                 <?php endforeach; ?>
 
                                 <?php if ($remaining > 0): ?>

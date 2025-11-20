@@ -13,6 +13,7 @@ class AIWU_Templates {
     public function __construct() {
         add_action('init', [$this, 'register_post_type']);
         add_action('init', [$this, 'register_taxonomies']);
+        add_action('init', [$this, 'register_integrations_page']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post', [$this, 'save_meta_boxes']);
         add_filter('template_include', [$this, 'load_templates']);
@@ -27,6 +28,10 @@ class AIWU_Templates {
         add_action('created_template_integration', [$this, 'save_integration_icon']);
         add_action('edited_template_integration', [$this, 'save_integration_icon']);
 
+        // Integration node fields
+        add_action('template_integration_edit_form_fields', [$this, 'add_integration_node_fields'], 20);
+        add_action('edited_template_integration', [$this, 'save_integration_node_fields']);
+
         // SEO hooks
         add_action('wp_head', [$this, 'add_meta_tags']);
         add_action('wp_head', [$this, 'add_schema_markup']);
@@ -36,6 +41,9 @@ class AIWU_Templates {
     
     public function set_full_width($layout) {
         if (is_post_type_archive('workflow_template') || is_singular('workflow_template')) {
+            return 'page-builder';
+        }
+        if (is_tax('template_integration') || (is_page() && get_query_var('integrations_archive'))) {
             return 'page-builder';
         }
         return $layout;
@@ -439,18 +447,30 @@ class AIWU_Templates {
             $plugin_template = plugin_dir_path(__FILE__) . 'templates/archive-workflow_template.php';
             if (file_exists($plugin_template)) return $plugin_template;
         }
-        
+
         if (is_singular('workflow_template')) {
             $plugin_template = plugin_dir_path(__FILE__) . 'templates/single-workflow_template.php';
             if (file_exists($plugin_template)) return $plugin_template;
         }
-        
+
+        // Integration taxonomy pages
+        if (is_tax('template_integration')) {
+            $plugin_template = plugin_dir_path(__FILE__) . 'templates/taxonomy-template_integration.php';
+            if (file_exists($plugin_template)) return $plugin_template;
+        }
+
+        // Integrations archive (custom query var)
+        if (get_query_var('integrations_archive')) {
+            $plugin_template = plugin_dir_path(__FILE__) . 'templates/archive-integrations.php';
+            if (file_exists($plugin_template)) return $plugin_template;
+        }
+
         return $template;
     }
     
     public function enqueue_styles() {
-        if (is_post_type_archive('workflow_template') || is_singular('workflow_template')) {
-            wp_enqueue_style('aiwu-templates', plugin_dir_url(__FILE__) . 'assets/styles.css', [], '1.0.0');
+        if (is_post_type_archive('workflow_template') || is_singular('workflow_template') || is_tax('template_integration') || get_query_var('integrations_archive')) {
+            wp_enqueue_style('aiwu-templates', plugin_dir_url(__FILE__) . 'assets/styles.css', [], '1.0.1');
         }
     }
     
@@ -477,6 +497,11 @@ class AIWU_Templates {
             $title['title'] = 'Workflow Templates - Automation Templates Library';
         } elseif (is_singular('workflow_template')) {
             $title['title'] = get_the_title() . ' - Workflow Template';
+        } elseif (is_tax('template_integration')) {
+            $term = get_queried_object();
+            $title['title'] = $term->name . ' Integration - AIWU Workflow Builder';
+        } elseif (get_query_var('integrations_archive')) {
+            $title['title'] = 'Integrations - Connect Your Favorite Tools';
         }
         return $title;
     }
@@ -500,7 +525,7 @@ class AIWU_Templates {
             }
             echo '<meta name="robots" content="index, follow">' . "\n";
             echo '<link rel="canonical" href="' . esc_url(get_permalink()) . '">' . "\n";
-            
+
             // Open Graph
             echo '<meta property="og:title" content="' . esc_attr(get_the_title()) . ' - Workflow Template">' . "\n";
             if ($description) {
@@ -508,11 +533,36 @@ class AIWU_Templates {
             }
             echo '<meta property="og:type" content="article">' . "\n";
             echo '<meta property="og:url" content="' . esc_url(get_permalink()) . '">' . "\n";
-            
+
             $thumb = get_the_post_thumbnail_url(get_the_ID(), 'large');
             if ($thumb) {
                 echo '<meta property="og:image" content="' . esc_url($thumb) . '">' . "\n";
             }
+        } elseif (is_tax('template_integration')) {
+            $term = get_queried_object();
+            $description = $term->description ?: 'Connect ' . $term->name . ' with AIWU Workflow Builder. Build powerful automations with triggers, actions, and logic blocks.';
+
+            echo '<meta name="description" content="' . esc_attr($description) . '">' . "\n";
+            echo '<meta name="robots" content="index, follow">' . "\n";
+            echo '<link rel="canonical" href="' . esc_url(get_term_link($term)) . '">' . "\n";
+
+            // Open Graph
+            echo '<meta property="og:title" content="' . esc_attr($term->name) . ' Integration - AIWU">' . "\n";
+            echo '<meta property="og:description" content="' . esc_attr($description) . '">' . "\n";
+            echo '<meta property="og:type" content="website">' . "\n";
+            echo '<meta property="og:url" content="' . esc_url(get_term_link($term)) . '">' . "\n";
+
+            $icon_id = get_term_meta($term->term_id, 'icon_image_id', true);
+            if ($icon_id) {
+                $icon_url = wp_get_attachment_url($icon_id);
+                if ($icon_url) {
+                    echo '<meta property="og:image" content="' . esc_url($icon_url) . '">' . "\n";
+                }
+            }
+        } elseif (get_query_var('integrations_archive')) {
+            echo '<meta name="description" content="Browse all available integrations for AIWU Workflow Builder. Connect your favorite tools and services with powerful automation.">' . "\n";
+            echo '<meta name="robots" content="index, follow">' . "\n";
+            echo '<link rel="canonical" href="' . esc_url(home_url('/integrations/')) . '">' . "\n";
         }
     }
     
@@ -612,6 +662,238 @@ class AIWU_Templates {
         } else {
             delete_term_meta($term_id, 'icon_image_id');
         }
+    }
+
+    // Integration Node Fields (Triggers, Actions, Logic Blocks)
+
+    public function add_integration_node_fields($term) {
+        $triggers = get_term_meta($term->term_id, 'integration_triggers', true);
+        $actions = get_term_meta($term->term_id, 'integration_actions', true);
+        $logic_blocks = get_term_meta($term->term_id, 'integration_logic_blocks', true);
+
+        if (!is_array($triggers)) $triggers = [];
+        if (!is_array($actions)) $actions = [];
+        if (!is_array($logic_blocks)) $logic_blocks = [];
+        ?>
+        <tr class="form-field">
+            <th colspan="2">
+                <h2 style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">Available Nodes</h2>
+                <p class="description">Define the available triggers, actions, and logic blocks for this integration.</p>
+            </th>
+        </tr>
+
+        <!-- Triggers -->
+        <tr class="form-field">
+            <th scope="row">
+                <label><?php _e('Triggers'); ?></label>
+            </th>
+            <td>
+                <div id="triggers-container">
+                    <?php foreach ($triggers as $i => $trigger): ?>
+                        <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                            <p>
+                                <label><strong>Trigger Name:</strong></label><br>
+                                <input type="text" name="integration_triggers[<?php echo $i; ?>][title]" value="<?php echo esc_attr($trigger['title'] ?? ''); ?>" style="width: 100%; padding: 6px;">
+                            </p>
+                            <p>
+                                <label><strong>Description:</strong></label><br>
+                                <textarea name="integration_triggers[<?php echo $i; ?>][description]" rows="3" style="width: 100%; padding: 6px;"><?php echo esc_textarea($trigger['description'] ?? ''); ?></textarea>
+                            </p>
+                            <button type="button" class="button remove-node-item">Remove Trigger</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="add-trigger" class="button button-secondary" style="margin-top: 10px;">+ Add Trigger</button>
+                <p class="description">Define the trigger nodes available for this integration.</p>
+            </td>
+        </tr>
+
+        <!-- Actions -->
+        <tr class="form-field">
+            <th scope="row">
+                <label><?php _e('Actions'); ?></label>
+            </th>
+            <td>
+                <div id="actions-container">
+                    <?php foreach ($actions as $i => $action): ?>
+                        <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                            <p>
+                                <label><strong>Action Name:</strong></label><br>
+                                <input type="text" name="integration_actions[<?php echo $i; ?>][title]" value="<?php echo esc_attr($action['title'] ?? ''); ?>" style="width: 100%; padding: 6px;">
+                            </p>
+                            <p>
+                                <label><strong>Description:</strong></label><br>
+                                <textarea name="integration_actions[<?php echo $i; ?>][description]" rows="3" style="width: 100%; padding: 6px;"><?php echo esc_textarea($action['description'] ?? ''); ?></textarea>
+                            </p>
+                            <button type="button" class="button remove-node-item">Remove Action</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="add-action" class="button button-secondary" style="margin-top: 10px;">+ Add Action</button>
+                <p class="description">Define the action nodes available for this integration.</p>
+            </td>
+        </tr>
+
+        <!-- Logic Blocks -->
+        <tr class="form-field">
+            <th scope="row">
+                <label><?php _e('Logic Blocks'); ?></label>
+            </th>
+            <td>
+                <div id="logic-blocks-container">
+                    <?php foreach ($logic_blocks as $i => $block): ?>
+                        <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                            <p>
+                                <label><strong>Logic Block Name:</strong></label><br>
+                                <input type="text" name="integration_logic_blocks[<?php echo $i; ?>][title]" value="<?php echo esc_attr($block['title'] ?? ''); ?>" style="width: 100%; padding: 6px;">
+                            </p>
+                            <p>
+                                <label><strong>Description:</strong></label><br>
+                                <textarea name="integration_logic_blocks[<?php echo $i; ?>][description]" rows="3" style="width: 100%; padding: 6px;"><?php echo esc_textarea($block['description'] ?? ''); ?></textarea>
+                            </p>
+                            <button type="button" class="button remove-node-item">Remove Logic Block</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="add-logic-block" class="button button-secondary" style="margin-top: 10px;">+ Add Logic Block</button>
+                <p class="description">Define the logic block nodes available for this integration.</p>
+            </td>
+        </tr>
+
+        <script>
+        jQuery(document).ready(function($) {
+            let triggerIndex = <?php echo count($triggers); ?>;
+            let actionIndex = <?php echo count($actions); ?>;
+            let logicBlockIndex = <?php echo count($logic_blocks); ?>;
+
+            // Add trigger
+            $('#add-trigger').on('click', function() {
+                const html = `
+                    <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                        <p>
+                            <label><strong>Trigger Name:</strong></label><br>
+                            <input type="text" name="integration_triggers[${triggerIndex}][title]" style="width: 100%; padding: 6px;">
+                        </p>
+                        <p>
+                            <label><strong>Description:</strong></label><br>
+                            <textarea name="integration_triggers[${triggerIndex}][description]" rows="3" style="width: 100%; padding: 6px;"></textarea>
+                        </p>
+                        <button type="button" class="button remove-node-item">Remove Trigger</button>
+                    </div>
+                `;
+                $('#triggers-container').append(html);
+                triggerIndex++;
+            });
+
+            // Add action
+            $('#add-action').on('click', function() {
+                const html = `
+                    <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                        <p>
+                            <label><strong>Action Name:</strong></label><br>
+                            <input type="text" name="integration_actions[${actionIndex}][title]" style="width: 100%; padding: 6px;">
+                        </p>
+                        <p>
+                            <label><strong>Description:</strong></label><br>
+                            <textarea name="integration_actions[${actionIndex}][description]" rows="3" style="width: 100%; padding: 6px;"></textarea>
+                        </p>
+                        <button type="button" class="button remove-node-item">Remove Action</button>
+                    </div>
+                `;
+                $('#actions-container').append(html);
+                actionIndex++;
+            });
+
+            // Add logic block
+            $('#add-logic-block').on('click', function() {
+                const html = `
+                    <div class="node-item" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                        <p>
+                            <label><strong>Logic Block Name:</strong></label><br>
+                            <input type="text" name="integration_logic_blocks[${logicBlockIndex}][title]" style="width: 100%; padding: 6px;">
+                        </p>
+                        <p>
+                            <label><strong>Description:</strong></label><br>
+                            <textarea name="integration_logic_blocks[${logicBlockIndex}][description]" rows="3" style="width: 100%; padding: 6px;"></textarea>
+                        </p>
+                        <button type="button" class="button remove-node-item">Remove Logic Block</button>
+                    </div>
+                `;
+                $('#logic-blocks-container').append(html);
+                logicBlockIndex++;
+            });
+
+            // Remove node item
+            $(document).on('click', '.remove-node-item', function() {
+                if (confirm('Remove this item?')) {
+                    $(this).closest('.node-item').remove();
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+
+    public function save_integration_node_fields($term_id) {
+        // Save triggers
+        if (isset($_POST['integration_triggers'])) {
+            $triggers = array_map(function($item) {
+                return [
+                    'title' => sanitize_text_field($item['title'] ?? ''),
+                    'description' => sanitize_textarea_field($item['description'] ?? ''),
+                ];
+            }, $_POST['integration_triggers']);
+            $triggers = array_filter($triggers, function($item) {
+                return !empty($item['title']);
+            });
+            update_term_meta($term_id, 'integration_triggers', array_values($triggers));
+        } else {
+            delete_term_meta($term_id, 'integration_triggers');
+        }
+
+        // Save actions
+        if (isset($_POST['integration_actions'])) {
+            $actions = array_map(function($item) {
+                return [
+                    'title' => sanitize_text_field($item['title'] ?? ''),
+                    'description' => sanitize_textarea_field($item['description'] ?? ''),
+                ];
+            }, $_POST['integration_actions']);
+            $actions = array_filter($actions, function($item) {
+                return !empty($item['title']);
+            });
+            update_term_meta($term_id, 'integration_actions', array_values($actions));
+        } else {
+            delete_term_meta($term_id, 'integration_actions');
+        }
+
+        // Save logic blocks
+        if (isset($_POST['integration_logic_blocks'])) {
+            $logic_blocks = array_map(function($item) {
+                return [
+                    'title' => sanitize_text_field($item['title'] ?? ''),
+                    'description' => sanitize_textarea_field($item['description'] ?? ''),
+                ];
+            }, $_POST['integration_logic_blocks']);
+            $logic_blocks = array_filter($logic_blocks, function($item) {
+                return !empty($item['title']);
+            });
+            update_term_meta($term_id, 'integration_logic_blocks', array_values($logic_blocks));
+        } else {
+            delete_term_meta($term_id, 'integration_logic_blocks');
+        }
+    }
+
+    // Register integrations archive page
+    public function register_integrations_page() {
+        add_rewrite_rule('^integrations/?$', 'index.php?integrations_archive=1', 'top');
+        add_rewrite_rule('^integrations/page/([0-9]+)/?$', 'index.php?integrations_archive=1&paged=$matches[1]', 'top');
+
+        // Register custom query var
+        add_filter('query_vars', function($vars) {
+            $vars[] = 'integrations_archive';
+            return $vars;
+        });
     }
 }
 
