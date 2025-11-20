@@ -1519,9 +1519,8 @@
 }
 
 /* Make integration icons actually linkable */
-.aiwu-integration-icon {
+a.aiwu-integration-icon {
     text-decoration: none !important;
-    display: flex !important;
 }
 
 @media (max-width: 1024px) {
