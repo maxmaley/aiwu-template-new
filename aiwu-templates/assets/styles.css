@@ -1176,12 +1176,363 @@
     transform: translateX(4px) !important;
 }
 
-@media (max-width: 1024px) { 
-    .aiwu-templates-grid { grid-template-columns: repeat(2, 1fr) !important; } 
+/* ============================================
+   INTEGRATION PAGES
+   ============================================ */
+
+/* Integration Hero */
+.aiwu-integration-hero-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 40px !important;
+}
+
+.aiwu-integration-hero-text {
+    flex: 1 !important;
+}
+
+.aiwu-integration-hero-icon {
+    flex-shrink: 0 !important;
+}
+
+.aiwu-integration-hero-icon-wrapper {
+    width: 160px !important;
+    height: 160px !important;
+    background: linear-gradient(135deg, rgba(255, 92, 53, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 32px !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 8px 32px rgba(255, 92, 53, 0.2) !important;
+}
+
+.aiwu-integration-hero-icon-wrapper img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+.aiwu-integration-hero-icon-initials {
+    background: linear-gradient(135deg, #FF5C35 0%, #a855f7 100%) !important;
+    border: none !important;
+}
+
+.aiwu-integration-hero-icon-initials span {
+    font-size: 48px !important;
+    font-weight: 800 !important;
+    color: white !important;
+    text-transform: uppercase !important;
+}
+
+/* Integration Nodes Section */
+.aiwu-integration-nodes {
+    background: rgba(12, 8, 28, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    padding: 40px !important;
+    margin-bottom: 40px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.aiwu-section-title {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 32px 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.aiwu-section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 32px !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+}
+
+.aiwu-explore-more-link {
+    color: #FF5C35 !important;
+    text-decoration: none !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.aiwu-explore-more-link:hover {
+    color: #ff7a5c !important;
+    transform: translateX(4px) !important;
+}
+
+.aiwu-nodes-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: 24px !important;
+}
+
+.aiwu-node-category {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    transition: all 0.3s ease !important;
+}
+
+.aiwu-node-category:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 92, 53, 0.3) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(255, 92, 53, 0.15) !important;
+}
+
+.aiwu-node-category-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.aiwu-node-category-icon {
+    font-size: 24px !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, rgba(255, 92, 53, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%) !important;
+    border-radius: 10px !important;
+}
+
+.aiwu-node-category-title {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.aiwu-node-items {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.aiwu-node-item {
+    padding: 16px !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+.aiwu-node-item:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.aiwu-node-item-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 6px 0 !important;
+    padding: 0 !important;
+}
+
+.aiwu-node-item-desc {
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Integration Templates Section */
+.aiwu-integration-templates {
+    background: rgba(12, 8, 28, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    padding: 40px !important;
+    margin-bottom: 40px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.aiwu-explore-more-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 32px !important;
+}
+
+.aiwu-explore-more-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #FF5C35 0%, #a855f7 100%) !important;
+    color: #ffffff !important;
+    padding: 14px 28px !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(255, 92, 53, 0.3) !important;
+}
+
+.aiwu-explore-more-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255, 92, 53, 0.5) !important;
+}
+
+/* Integration Cards - Archive Page */
+.aiwu-integrations-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 24px !important;
+    margin: 40px 0 !important;
+}
+
+.aiwu-integration-card {
+    background: rgba(12, 8, 28, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    padding: 32px 24px !important;
+    text-decoration: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.aiwu-integration-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: radial-gradient(circle at center, rgba(255, 92, 53, 0.1) 0%, transparent 70%) !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.aiwu-integration-card:hover::before {
+    opacity: 1 !important;
+}
+
+.aiwu-integration-card:hover {
+    border-color: rgba(255, 92, 53, 0.4) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 32px rgba(255, 92, 53, 0.2) !important;
+}
+
+.aiwu-integration-card-icon {
+    width: 80px !important;
+    height: 80px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 16px !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.aiwu-integration-card-icon img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+.aiwu-integration-card-initials {
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.aiwu-integration-card-initials span {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: white !important;
+    text-transform: uppercase !important;
+}
+
+.aiwu-integration-card-content {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.aiwu-integration-card-name {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 8px 0 !important;
+    padding: 0 !important;
+}
+
+.aiwu-integration-card-desc {
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    line-height: 1.5 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+}
+
+.aiwu-integration-card-count {
+    font-size: 13px !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-weight: 600 !important;
+    padding: 6px 12px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+}
+
+/* Integration Archive Search */
+.aiwu-integrations-search-bar {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 40px auto !important;
+    max-width: 600px !important;
+}
+
+/* Make integration icons actually linkable */
+.aiwu-integration-icon {
+    text-decoration: none !important;
+    display: flex !important;
+}
+
+@media (max-width: 1024px) {
+    .aiwu-templates-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .aiwu-integrations-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .aiwu-nodes-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 768px) {
     .aiwu-templates-grid { grid-template-columns: 1fr !important; }
+    .aiwu-integrations-grid { grid-template-columns: 1fr !important; }
     .aiwu-filters-bar { flex-direction: column !important; align-items: stretch !important; }
     .aiwu-filters-left { flex-direction: column !important; width: 100% !important; }
     .aiwu-search-wrapper { max-width: 100% !important; min-width: 100% !important; }
@@ -1207,15 +1558,15 @@
     .aiwu-integration-initials {
         font-size: 11px !important;
     }
-    
+
     .aiwu-templates-inner {
         padding: 40px 15px !important;
     }
-    
+
     .aiwu-template-detail {
         padding: 0 !important;
     }
-    
+
     .aiwu-template-container {
         padding: 20px 15px !important;
     }
@@ -1259,21 +1610,60 @@
         padding: 40px 24px !important;
         margin-top: 40px !important;
     }
-    
+
     .aiwu-cta-title {
         font-size: 28px !important;
     }
-    
+
     .aiwu-cta-description {
         font-size: 16px !important;
     }
-    
+
     .aiwu-cta-features {
         grid-template-columns: 1fr !important;
         gap: 16px !important;
     }
-    
+
     .aiwu-cta-feature {
         padding: 20px !important;
+    }
+
+    /* Integration pages mobile */
+    .aiwu-integration-hero-content {
+        flex-direction: column !important;
+        gap: 24px !important;
+        text-align: center !important;
+    }
+
+    .aiwu-integration-hero-icon-wrapper {
+        width: 120px !important;
+        height: 120px !important;
+        padding: 24px !important;
+    }
+
+    .aiwu-integration-hero-icon-initials span {
+        font-size: 36px !important;
+    }
+
+    .aiwu-integration-nodes {
+        padding: 24px !important;
+    }
+
+    .aiwu-integration-templates {
+        padding: 24px !important;
+    }
+
+    .aiwu-section-title {
+        font-size: 24px !important;
+    }
+
+    .aiwu-section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .aiwu-integrations-search-bar {
+        flex-direction: column !important;
+        width: 100% !important;
     }
 }
