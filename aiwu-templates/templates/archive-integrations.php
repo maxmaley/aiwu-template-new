@@ -21,8 +21,8 @@ $args = [
     'hide_empty' => false,
     'orderby' => 'name',
     'order' => 'ASC',
-    'number' => 12,
-    'offset' => ($paged - 1) * 12,
+    'number' => 30,
+    'offset' => ($paged - 1) * 30,
 ];
 
 if ($search) {
@@ -38,7 +38,7 @@ unset($total_args['number']);
 unset($total_args['offset']);
 $all_integrations = get_terms($total_args);
 $total_found = is_array($all_integrations) ? count($all_integrations) : 0;
-$total_pages = ceil($total_found / 12);
+$total_pages = ceil($total_found / 30);
 ?>
 
 <div class="aiwu-templates-container aiwu-integrations-archive">
@@ -102,13 +102,23 @@ $total_pages = ceil($total_found / 12);
                 <div class="aiwu-pagination">
                     <?php
                     $base_url = home_url('/integrations/');
-                    if ($search) {
-                        $base_url = add_query_arg('s', $search, $base_url);
-                    }
+
+                    // Helper function to build pagination URL
+                    $build_page_url = function($page_num) use ($base_url, $search) {
+                        if ($page_num <= 1) {
+                            $url = $base_url;
+                        } else {
+                            $url = home_url("/integrations/page/{$page_num}/");
+                        }
+                        if ($search) {
+                            $url = add_query_arg('s', $search, $url);
+                        }
+                        return $url;
+                    };
 
                     // Previous button
                     if ($paged > 1):
-                        $prev_url = add_query_arg('paged', $paged - 1, $base_url);
+                        $prev_url = $build_page_url($paged - 1);
                         echo '<a href="' . esc_url($prev_url) . '" class="aiwu-page-btn">←</a>';
                     else:
                         echo '<span class="aiwu-page-btn" disabled>←</span>';
@@ -116,7 +126,7 @@ $total_pages = ceil($total_found / 12);
 
                     // Page numbers
                     if ($paged > 2):
-                        $first_url = $base_url;
+                        $first_url = $build_page_url(1);
                         echo '<a href="' . esc_url($first_url) . '" class="aiwu-page-btn">1</a>';
                         if ($paged > 3):
                             echo '<span class="aiwu-page-dots">...</span>';
@@ -124,7 +134,7 @@ $total_pages = ceil($total_found / 12);
                     endif;
 
                     for ($i = max(1, $paged - 1); $i <= min($total_pages, $paged + 1); $i++):
-                        $page_url = ($i === 1) ? $base_url : add_query_arg('paged', $i, $base_url);
+                        $page_url = $build_page_url($i);
                         $active_class = $i === $paged ? ' active' : '';
                         echo '<a href="' . esc_url($page_url) . '" class="aiwu-page-btn' . $active_class . '">' . $i . '</a>';
                     endfor;
@@ -133,13 +143,13 @@ $total_pages = ceil($total_found / 12);
                         if ($paged < $total_pages - 2):
                             echo '<span class="aiwu-page-dots">...</span>';
                         endif;
-                        $last_url = add_query_arg('paged', $total_pages, $base_url);
+                        $last_url = $build_page_url($total_pages);
                         echo '<a href="' . esc_url($last_url) . '" class="aiwu-page-btn">' . $total_pages . '</a>';
                     endif;
 
                     // Next button
                     if ($paged < $total_pages):
-                        $next_url = add_query_arg('paged', $paged + 1, $base_url);
+                        $next_url = $build_page_url($paged + 1);
                         echo '<a href="' . esc_url($next_url) . '" class="aiwu-page-btn">→</a>';
                     else:
                         echo '<span class="aiwu-page-btn" disabled>→</span>';
